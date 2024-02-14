@@ -1,290 +1,4 @@
-<!-- <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-    <style>
-        .seat {
-            width: 50px;
-            height: 30px;
-            margin: 5px;
-            text-align: center;
-            line-height: 30px;
-            border: 1px solid #ccc;
-            display: inline-block;
-        }
 
-        .reserved {
-            background-color: red;
-            color: white;
-        }
-        label{
-            font-size: large;
-            font-weight: 400;
-        
-        }
-        .form-label{
-            color: black;
-            font-weight: bold;
-        }
-        .container1 {
-      border: 2px solid #ccc;
-      padding: 20px;
-      margin: 10px;
-      cursor: pointer;
-      width: 10%;
-    }
-    .container1.selected {
-      border-color: blue;
-    }
-    </style>
-</head>
-<body>
-    {% include 'header.html' %}
-
-    
-    
-        <style>
-            .time-slots {
-                display: flex;
-                flex-wrap: wrap;
-            }
-    
-            .time-slot {
-                border: 1px solid #ccc;
-                margin: 5px;
-                padding: 5px;
-                cursor: pointer;
-            }
-    
-            .time-slot.selected {
-                background-color: rgb(43, 0, 255);
-                color: white;
-            }
-            .time-slot.booked {
-                background-color: rgb(255, 0, 0);
-                color: white;
-            }
-        </style>
-    
-        <div class="container mt-5 mb-5">
-            <h2>Time Slot Selection</h2>
-            <div id="timeSlots" class="d-flex flex-wrap">
-                    <p>{{ booked_data}}</p>
-                    
-                    {% for time_slot in time_slots %}
-                    {% set is_booked = false %}
-                    {% for book in booked_data %}
-                        {% if time_slot == book.split[0] %}
-                            {% set is_booked = true %}
-                        {% endif %}
-                    {% endfor %}
-                    {% if is_booked %}
-                        <div class="time-slot booked" data-time="{{ time_slot }}" onclick="toggleTimeSlot(this)">
-                            {{ time_slot }}
-                        </div>
-                    {% else %}
-                        <div class="time-slot" data-time="{{ time_slot }}" onclick="toggleTimeSlot(this)">
-                            {{ time_slot }}
-                        </div>
-                    {% endif %}
-                {% endfor %}
-
-                
-                
-
-               
-            </div>
-        </div>
-          <script>
-             $(document).ready(function() {
-    bookTimeSlots();
-});
-
-function bookTimeSlots() {
-    // Loop through each time slot element
-    $('.time-slot').each(function() {
-        var timeSlot = $(this).data('time');
-        var isBooked = false;
-
-        // Loop through each booked time slot to check for overlap
-        for (var i = 0; i < booked_data.length; i++) {
-            var startSlot = booked_data[i][0];
-            var endSlot = booked_data[i][1];
-
-            // Check if the time slot overlaps with any booked time slot
-            if (timeSlot >= startSlot && timeSlot <= endSlot) {
-                isBooked = true;
-                break;
-            }
-        }
-
-        // If the time slot is booked, color it red, otherwise color it blue
-        if (isBooked) {
-            $(this).addClass('booked');
-        } else {
-            $(this).addClass('selected');
-        }
-    });
-
-    calculateTotalHours();
-}
-          </script>
-
-       
-        
-        
-        
-    
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script>
-            
-    
-            var selectedTimeSlots = [];
-            var selectedRange = 'N/A';
-            var connectorTypePrice = 0;
-            var totalMinutes = 0; // Declare totalMinutes globally
-    
-            function calculateTotalTime(startTime, endTime) {
-                document.getElementById('bookings').style.display="block";
-                var startParts = startTime.split(':');
-                var startMinutes = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
-                
-
-                var endParts = endTime.split(':');
-                var endMinutes = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
-                
-
-                totalMinutes = endMinutes - startMinutes; // Update the global variable
-    
-                var hours = Math.floor(totalMinutes / 60);
-                var minutes = totalMinutes % 60;
-                
-                var total_min = (hours*60)+minutes;
-
-                var selectedChargeLevel = document.querySelector('input[name="charge_level"]:checked').value;
-                var totalcost = 0
-                if (selectedChargeLevel == "Level 1"){
-                    totalcost = total_min * 1;
-                }
-                else if(selectedChargeLevel == "Level 2"){
-                    totalcost = total_min * 2;
-                }
-                else{
-                    totalcost = total_min * 3;
-                }
-
-
-
-                
-                document.getElementById("totalCost").innerHTML = totalcost + '  INR';
-                document.getElementById('total_cost').value=totalcost;
-                document.getElementById('totalHours').innerText = 'Total Hours: ' + hours + ' hours ' + minutes + ' minutes';
-    
-                return hours + ' hours ' + minutes + ' minutes';
-            }
-    
-            function toggleTimeSlot(element) {
-                var timeSlot = element.getAttribute('data-time');
-    
-                if (selectedTimeSlots.length === 0) {
-                    selectedTimeSlots.push(timeSlot);
-                    connectorTypePrice = parseFloat(element.getAttribute('data-price'));
-                    $(element).addClass('selected');
-                } else if (selectedTimeSlots.length === 1) {
-                    var startSlot = selectedTimeSlots[0];
-                    var endSlot = timeSlot;
-    
-                    $('.time-slot').removeClass('selected');
-    
-                    var startIndex = $('#timeSlots .time-slot[data-time="' + startSlot + '"]').index();
-                    var endIndex = $('#timeSlots .time-slot[data-time="' + endSlot + '"]').index();
-    
-                    for (var i = Math.min(startIndex, endIndex)-1; i < Math.max(startIndex, endIndex); i++) {
-                        $('#timeSlots .time-slot').eq(i).addClass('selected');
-                    }
-    
-                    selectedTimeSlots.push(timeSlot);
-                } else {
-                    selectedTimeSlots = [];
-                    $('.time-slot').removeClass('selected');
-                }
-    
-                calculateTotalHours();
-            }
-    
-            function calculateTotalHours() {
-                if (selectedTimeSlots.length > 0) {
-                    var startRange = selectedTimeSlots[0].split(' - ')[0];
-                    var endRange = selectedTimeSlots[selectedTimeSlots.length - 1].split(' - ')[1];
-                    
-                    var start = selectedTimeSlots[0]
-                    var end   = selectedTimeSlots[selectedTimeSlots.length - 1]
-                    document.getElementById('start_time').value= start;
-                    document.getElementById('end_time').value= end;
-                    selectedRange = startRange + ' - ' + endRange;
-                } else {
-                    selectedRange = 'N/A';
-                }
-                document.getElementById('selectedRange').innerText = 'Selected Range: ' + selectedRange;
-    
-                var timeParts = selectedRange.split(' - ');
-                var startTime = timeParts[0].trim();
-                var endTime = timeParts[1].trim();
-    
-                var totalTime = calculateTotalTime(startTime, endTime);
-                document.getElementById('totalTime').value=totalTime;
-    
-                
-            }
-
-            
-
-        </script>
-    </div>
-    
-
-    <div class="container">
-        <table id="bookings" style="display: none;" class="table table-dark table-striped">
-            <thead>
-              
-                    <th>Total Hours</th>
-                    <th>Selected Range</th>
-                    <th>Total Cost</th>
-                
-            </thead>
-            <tbody>
-               
-                    <td><span id="totalHours"></span></td>
-                    <td><span id="selectedRange"></span></td>
-                    <td><span id="totalCost"></span></td>
-                    <td><form action="{{url_for('book_port',company_id=company_id)}}" method="post" id="bookings">
-                        <input type="text" name="start_time" id="start_time"  >
-                        <input type="text" name="end_time" id="end_time"  >
-                        <input type="text" name="total_cost" id="total_cost"  hidden>
-                        <input type="text" name="totalTime" id="totalTime" hidden>
-                        <input  id="selectedContainer" name="selectedport" value="" hidden>
-                        <input type="text" id="selectedConnectorType" name="selectedConnectorType" hidden>
-                        <input type="text" id="selectedChargeLevel" name="selectedChargeLevel" hidden>
-                        <button name="submit" value="submit" type="submit"  class="btn btn-danger btn-block btn-flat">Submit</button>
-                    </form></td>
-               
-            </tbody>
-        </table>
-    </div>
-    
-    
-    
-
-
-
-    
-
-</body>
-</html> -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -295,6 +9,8 @@ function bookTimeSlots() {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+    <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=HPbIEqrGaQgGuPrEqQG6cLjX4rvalvPHN1jrCWoaJrY1Vts4q_MYxQVrLZgYHU2uP9ktY_6ELNfxqfCVW2QbmGs9PwbAfB5tZ-rsDX4fm4bSHaO5-_re_k-KiygFn3wAl9uIXRO5HwSM2pigpijOuyz9SJr9cGvNithsfsYVHxPREuuupqn0H3GHcVmrU678QAusHFSJBAEejQX6tyQ4a-OhmajlFx-UZ1u64iMiO-K3QjbCXsu83WC02Fw0IZnfKEHz8WG0xlx4ZZuVSkG_kScGhP2-U-o-9M8uRpyh-Zze0nw77sZdO9GyspFdkuB34uGrxfAXhlais70zkZFCT0VYcqcb5nMwMGE-EF1mZdBFkw_uQWtAJypZisas9VqH01QFQCm__wp84a7CvLBydsjUpfknEk6DX0PIN-Lhb1X43nn7YnEfBGnMwPG8FVP7UgdB2aH1kJvbNzeRM0NOhK0LvBUkGePDjIajazJlDeRklJKhzilbSoCSfH68PE9s5Ig2acxleeF2a8V9zsxduD-mreVZEzghbSH1nQvhUXOmvYhAOJq1pvicIdsDkqJLtPqotQyb14tc2imHv40R-FsQE3qBO4S_BMPaWwv5ac2hIxCaARfwkTWBBTJgI_RDdh94A2YKi_ZxgErT9ZEPFfaL-0LLh1kktOXHY0dCK7OkjP22OJgBZaoRYXarWROpebo677hiDjhZjCpk62eR5-2U2MwIr6HZ0vB1Amo9u9ZZP4dAJJkrYVzqWy02t_522FJa4f62PK0EpKalVKAhp9tLcaB52yVJCZVnW1w245VS5P0--PeMrZ-9dNoxzq-vypZqZITqqh2YJ47vS7_nGxa4NdHk8Ifa9TPGqhYVA6Et5OZjEZgCefuy1GUW4RgWP85Z-ldor2bda8mzqSh1FlurV4FNNvD6_FXuCfq2A89uoY1OqKPo6eDeHGF941yZk0X2yOCsPb_LAhA1avWlvc_IFj3k29m6gJwW-LqHqKPXB6hijhMRE9mBnUEwHd245z4pNVu0hBDlJURv8qQE17QKdecaFB7f87nEgYgDBBPlRt4tQhmZbmsBAdJMBQ-zc526AMbPbvyq6rh0WFslAuA0XXWU_lHDesQ1jGhPDh-e-Bd2Z-JA0PejgCfjgT86Slf2KDgSleuHhGjR-ownP492sWkAtSbK9OzdbW4Eu0AQtQcKsWqqKSVqkq91qNwHP2E-EvtI3ky5zowjJrTVfk5iCY9qkoHl6nwJ7HIYL8v_udgWZJDgnRC4FJ3-V5yo1UtIvG353Gpfr2uM8_FLck9EXt0p3IHtwVw2GUvEAgdxcFT5eW4pjdZQI1RyyU2purVnYVQ8qV071wianiKBJ4Mt6bLKfJZ8GXzYuyZ5_euOfROaImtX15A5OaRSgaWydkVa4fPRrjMVGsL-oE2_c19loxmejmvRB25NZZm0QaZIDKBBWZhJEzy0qCr0O7Pe-bVwte2fkqUz6HLStlvqeCpRNIZfXv5NMcm_ZUGXanIVByDcGwpkDmL-4bAs1fCG3FmgyWHdWg_njWfILmx613wl4AYUziUHc3rtJbqySAPxOH93ZeGHLTPyQy13jr6B1wjpD0tan7QRxmz777wX5v97hAhsojiLPQ7OkOb9QLfQF2-TR6mEaxHBiQ53Bt_vYLgVG1Hf8ELzbSm8v52Ohw" nonce="b53af11828020568090c9e0337d20b1a" charset="UTF-8"></script>
+
     <style>
         .time-slot {
             width: 50px;
@@ -316,6 +32,42 @@ function bookTimeSlots() {
             font-weight: bold;
         }
         
+        .popup {
+      display: none;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+    .popup-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      border-radius: 5px;
+      width: 80%; /* Limit maximum width */
+      height: 80%; /* Limit maximum height */
+      overflow: auto; /* Enable scrolling for content overflow */
+    }
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+    }
+
+    /* Media queries for responsiveness */
+    @media (max-width: 768px) {
+      .popup-content {
+        max-width: 90%; /* Adjust maximum width for smaller screens */
+        max-height: 90%; /* Adjust maximum height for smaller screens */
+      }
+    }
     </style>
 
     
@@ -345,25 +97,28 @@ function bookTimeSlots() {
         }
         .booked {
             background-color: red;
+            display: none;
         }
         .selected {
             background-color: blue;
             color: white;
         }
+
     </style>
 </head>
-<body>
+<body >
     {% include 'header.html' %}
     <h2 class="text-center">Select the Slot :</h2>
     <div id="timeSlotsContainer" class="container"></div>
     <div id="selectedSlots" style="display: none;"></div>
-    <div>
-        <!-- Start Slot: <input type="text" id="startSlot" readonly><br>
-        End Slot: <input type="text" id="endSlot" readonly>
-        cost : <input type="text" id="totalCost" readonly>
-        total time: <input type="text" id="totalHours" readonly> -->
 
-    </div>
+    <div class="popup" id="popup">
+        <div class="popup-content">
+          <span class="close" onclick="closePopup()">&times;</span>
+          <iframe id="videoFrame" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
+        </div>
+      </div>
+
     <div class="container">
         <table id="bookings"  class="table table-dark table-striped table-responsive">
             <thead>
@@ -400,11 +155,23 @@ function bookTimeSlots() {
     </div>
 
     <script>
-        // var booked_data = [
-        //     ["00:00 - 00:15", "03:00 - 03:15"],
-        //     ["10:30", "11:00"],
-        //     // Add more booked slots as needed
-        // ];
+        
+        function popup(){
+            
+            var videoFrame = document.getElementById('videoFrame');
+            var videoSource = window.innerWidth > 500 ? 'dvslot.mp4' : 'mvslot.mp4';
+            videoFrame.src = videoSource;
+            document.getElementById('popup').style.display="block";
+            
+        }
+        function closePopup(){
+            var videoFrame = document.getElementById('videoFrame');
+            videoFrame.src = ''; // Reset video source to stop playing
+            document.getElementById('popup').style.display="none";
+        }
+
+
+
         var booked_data = {{ booked_data |safe}};
 
         var timeSlots = [
@@ -531,6 +298,7 @@ var selectedSlots = [];
 
                 if (isBooked) {
                     div.classList.add("booked");
+                    popup();
                 } else {
                     div.classList.add("available");
                 }
@@ -595,7 +363,7 @@ var selectedSlots = [];
             if (selectedSlots.length >= 2) {
                 document.getElementById("startSlot").value = selectedSlots[0];
                 document.getElementById("endSlot").value = selectedSlots[selectedSlots.length - 1];
-                document.getElementById("selected_Range").innerHTML = selectedSlots[0] + selectedSlots[selectedSlots.length - 1];
+                document.getElementById("selected_Range").innerHTML = selectedSlots[0] + " " +selectedSlots[selectedSlots.length - 1];
                 
                 calculateTotalTime(selectedSlots[0], selectedSlots[selectedSlots.length - 1])
             } else {
@@ -609,6 +377,7 @@ var selectedSlots = [];
             for (var i = startIndex; i <= endIndex; i++) {
                 if (isSelected) {
                     slots[i].classList.add("selected");
+                    
                 } else {
                     slots[i].classList.remove("selected");
                 }
@@ -628,7 +397,7 @@ var selectedSlots = [];
                 var endParts = endTime.split(':');
                 var endMinutes = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
                 
-
+                
                 totalMinutes = endMinutes - startMinutes; // Update the global variable
     
                 var hours = Math.floor(totalMinutes / 60);
@@ -654,7 +423,12 @@ var selectedSlots = [];
             }
 
         window.onload = createTimeSlots;
+        
     </script>
+    <!-- Bootstrap JS and jQuery (required for Bootstrap) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     {% include 'footer.html' %}
 </body>
 </html>
