@@ -48,6 +48,16 @@
 <body>
     {% include 'header.html' %}
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-primary alert-{{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
     <div class="container mt-5 bg-light">
 
         <div class="container">

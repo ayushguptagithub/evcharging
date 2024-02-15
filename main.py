@@ -198,7 +198,7 @@ def book_port(company_id):
         cur.execute("SELECT `starttime`, `endtime` FROM `bookings` WHERE bookingdate = %s and selectedport =%s", (bookingdate,selectedport,))
         booked_data = cur.fetchall()
         
-        print(selectedport)
+        
         
         
         if request.method == 'POST':
@@ -207,10 +207,15 @@ def book_port(company_id):
             selectedtype = request.form.get('selectedConnectorType')
             selectedlevel = request.form.get('selectedChargeLevel')
 
+            if selectedport  and selectedtype and selectedlevel:
+                return render_template('book_slot.html',selectedport=selectedport,selectedtype = selectedtype,selectedlevel=selectedlevel,company_id=company_id,usertype=usertype, name=name, email=email,connector_type_options=connector_type_options, charge_level_options=charge_level_options, time_slots=time_slots,getConnectorTypePrice=getConnectorTypePrice,booked_data=json.dumps(booked_data))
+            else:
+               
+                flash("Please fill out all fields", 'danger')
+                return render_template('book_port.html',flash_message='Please fill out all fields',company_id=company_id, registered_companies=registered_companies, usertype=usertype, name=name, email=email, connector_type_options=connector_type_options, charge_level_options=charge_level_options, time_slots=time_slots,getConnectorTypePrice=getConnectorTypePrice)
 
 
-
-            return render_template('book_slot.html',selectedport=selectedport,selectedtype = selectedtype,selectedlevel=selectedlevel,company_id=company_id,usertype=usertype, name=name, email=email,connector_type_options=connector_type_options, charge_level_options=charge_level_options, time_slots=time_slots,getConnectorTypePrice=getConnectorTypePrice,booked_data=json.dumps(booked_data))
+            
 
         return render_template('book_port.html', company_id=company_id, registered_companies=registered_companies, usertype=usertype, name=name, email=email, connector_type_options=connector_type_options, charge_level_options=charge_level_options, time_slots=time_slots,getConnectorTypePrice=getConnectorTypePrice)
 
@@ -274,10 +279,38 @@ def book_slot(company_id):
             mysql.connection.commit()
             cur.close()
 
+            if totalcost :
+                
+                return  render_template('bill.html',company_id=company_id, registered_companies=registered_companies,bill_details=bill_details,usertype=usertype, name=name, email=email)
+            else:
+                flash("Please fill out all fields", 'danger')
+                cur = mysql.connection.cursor()
+                cur.execute("SELECT id, name, email, phone, gst, tspace, connector_types, charge_levels, dc_support, address, area, taluka, state FROM users WHERE id = %s", (company_id,))
+                companies_datas = cur.fetchall()
+                registered_companies = [Company_details(id=row[0], name=row[1], email=row[2], phone=row[3], gst=row[4], tspace=row[5], connector_types=row[6], charge_levels=row[7], dc_support=row[8], address=row[9], area=row[10], taluka=row[11], state=row[12]) for row in companies_datas]
 
-            
-            return  render_template('bill.html',company_id=company_id, registered_companies=registered_companies,bill_details=bill_details,usertype=usertype, name=name, email=email)
-        
+                
+
+                # Fetch connector type options from the database
+                cur.execute("SELECT DISTINCT connector_types FROM users WHERE id = %s", (company_id,))
+                connector_type_options = [row[0] for row in cur.fetchall()]
+
+                # Fetch charge level options from the database
+                cur.execute("SELECT DISTINCT charge_levels FROM users WHERE id = %s", (company_id,))
+                charge_level_options = [row[0] for row in cur.fetchall()]
+
+                time_slots = generate_time_slots()
+
+                bookingdate = d.today()
+                formatted_time = datetime.now().time()
+                bookingtime = formatted_time.strftime('%H:%M')
+                selectedport = request.form.get('selectedport')
+                
+                cur = mysql.connection.cursor()
+                cur.execute("SELECT `starttime`, `endtime` FROM `bookings` WHERE bookingdate = %s and selectedport =%s", (bookingdate,selectedport,))
+                booked_data = cur.fetchall()
+                return render_template('book_slot.html',selectedport=selectedport,selectedtype = selectedtype,selectedlevel=selectedlevel,company_id=company_id,usertype=usertype, name=name, email=email,connector_type_options=connector_type_options, charge_level_options=charge_level_options, time_slots=time_slots,getConnectorTypePrice=getConnectorTypePrice,booked_data=json.dumps(booked_data))
+
 
         return render_template('book_slot.html', company_id=company_id, registered_companies=registered_companies, usertype=usertype, name=name, email=email)
 
