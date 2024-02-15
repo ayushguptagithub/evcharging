@@ -34,9 +34,8 @@ def get_user_by_email(email):
     cur.close()
     return user
 class Area:
-    def __init__(self, id, name, area):
-        self.id = id
-        self.name = name
+    def __init__(self, area):
+        
         self.area = area
 
 class Company:
@@ -85,9 +84,9 @@ def index():
     cur = mysql.connection.cursor()
 
     # Fetch areas
-    cur.execute("SELECT id, name, area FROM users")
+    cur.execute("SELECT distinct area FROM users")
     areas_data = cur.fetchall()
-    areas = [Area(id=row[0], name=row[1], area=row[2]) for row in areas_data]
+    areas = [Area(area=row[0]) for row in areas_data]
 
     selected_area = None
     registered_companies = []
