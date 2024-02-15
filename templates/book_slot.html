@@ -46,12 +46,20 @@
             color: aliceblue;
             cursor: pointer;
         }
+        .available:hover{
+            transform: scale(1.1);
+        }
         .booked {
             background-color: red;
             color: aliceblue;
             cursor: no-drop;
-
-           
+            
+        }
+        .booked:hover {
+            background-color: red;
+            color: aliceblue;
+            cursor: no-drop;
+            animation: moye_moye 1s;
         }
         .selected {
             background-color: blue;
@@ -88,6 +96,54 @@
       right: 10px;
       cursor: pointer;
     }
+    @keyframes moye_moye {
+    0% {
+        transform: rotateZ(5deg);
+       
+    }
+    10%{
+        transform: rotateZ(-5deg);
+        
+    }
+    20% {
+        transform: rotateZ(5deg);
+       
+    }
+    30%{
+        transform: rotateZ(-5deg);
+        
+    }
+    40% {
+        transform: rotateZ(5deg);
+       
+    }
+    50%{
+        transform: rotateZ(-5deg);
+        
+    }
+    60% {
+        transform: rotateZ(5deg);
+       
+    }
+    70%{
+        transform: rotateZ(-5deg);
+        
+    }
+    80% {
+        transform: rotateZ(5deg);
+       
+    }
+    90%{
+        transform: rotateZ(-5deg);
+        
+    }
+    100% {
+        transform: rotateZ(5deg);
+       
+    }
+    
+}
+
 
     /* Media queries for responsiveness */
     @media (max-width: 768px) {
