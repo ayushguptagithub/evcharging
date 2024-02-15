@@ -159,7 +159,7 @@
         // When document is ready
         function popup(){
           var videoFrame = document.getElementById('videoFrame');
-          var videoSource = window.innerWidth > 500 ? "{{ url_for('static', filename='dvslot.mp4') }}" : "{{ url_for('static', filename='vmslot.mp4') }}";
+          var videoSource = window.innerWidth > 500 ? "{{ url_for('static', filename='img/dvslot.mp4') }}" : "{{ url_for('static', filename='img/mvslot.mp4') }}";
           videoFrame.src = videoSource;
           document.getElementById('popup').style.display="block";
         }
@@ -168,7 +168,7 @@
           videoFrame.src = ''; // Reset video source to stop playing
           document.getElementById('popup').style.display="none";
         }
-      popup();
+        popup();
       </script>
     <script>
 
