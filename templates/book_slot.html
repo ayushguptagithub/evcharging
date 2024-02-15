@@ -57,7 +57,7 @@
             background-color: blue;
             color: white;
         }
-
+    
         /* Custom styles for the pop-up */
     .popup {
       display: none;
@@ -69,6 +69,7 @@
       background-color: rgba(0, 0, 0, 0.5);
       z-index: 999;
     }
+
     .popup-content {
       position: absolute;
       top: 50%;
@@ -100,7 +101,7 @@
 </head>
 <body >
     {% include 'header.html' %}
-
+    
         <!-- Popup Container -->
 <div class="popup" id="popup">
     <div class="popup-content">
@@ -170,9 +171,9 @@
         }
         popup();
       </script>
+     
     <script>
-
-
+ 
 
         var booked_data = {{ booked_data |safe}};
 

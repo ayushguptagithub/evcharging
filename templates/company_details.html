@@ -8,6 +8,55 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
+            @keyframes zoomIn {
+    0% {
+        transform: scale(1);
+       
+    }
+    10%{
+        transform: scale(1.2);
+        
+    }
+    20% {
+        transform: scale(1);
+       
+    }
+    30%{
+        transform: scale(1.2);
+        
+    }
+    40% {
+        transform: scale(1);
+       
+    }
+    50%{
+        transform: scale(1.2);
+        
+    }
+    60% {
+        transform: scale(1);
+       
+    }
+    70%{
+        transform: scale(1.2);
+        
+    }
+    80% {
+        transform: scale(1);
+       
+    }
+    90%{
+        transform: scale(1.2);
+        
+    }
+    100% {
+        transform: scale(1);
+       
+    }
+    
+}
+
+
         /* Common styles for question mark and popup */
         .question-mark {
             display: inline-block;
@@ -20,6 +69,7 @@
             text-align: center;
             line-height: 30px; /* Vertical centering */
             cursor: pointer; /* Change cursor to pointer */
+            animation: zoomIn 5s infinite;
         }
     
         #info {
@@ -68,6 +118,7 @@
 <body>
 
     {% include 'header.html' %}
+   
     {% for company in registered_companies %}
     <div class="container bg-light mb-3">
         <div class="row mt-4"> 
@@ -104,7 +155,7 @@
                     <h5>Accommodation of light city vehicles.</h5>
                 </div>
                 <div class="row ml-1 mt-5">
-                    <div class="col"><h2>Electric Vehicle Charging</h2><div class="question-mark" onclick="openinfo()">?</div></div>
+                    <div class="col"><h2>Electric Vehicle Charging</h2><div class="question-mark" title="Click Me" onclick="openinfo()">?</div></div>
                 </div>
                 <div class="row m-1">
                     <table class="table table-bordered table-dark table-striped table-responsive">
@@ -196,6 +247,7 @@
     function closeInfo() {
         document.getElementById('info').style.display = 'none';
     }
+    
 </script>
 
     
