@@ -390,42 +390,57 @@ var selectedSlots = [];
                 }
 
                 div.addEventListener("click", function() {
-                    var currentIndex = timeSlots.indexOf(timeSlot);
-                    var startSlotIndex = timeSlots.indexOf(selectedSlots[0]);
-                    var endSlotIndex = timeSlots.indexOf(selectedSlots[selectedSlots.length - 1]);
-                    var isBooked = div.classList.contains("booked");
+    var currentIndex = timeSlots.indexOf(timeSlot);
+    var startSlotIndex = timeSlots.indexOf(selectedSlots[0]);
+    var endSlotIndex = timeSlots.indexOf(selectedSlots[selectedSlots.length - 1]);
+    var isBooked = div.classList.contains("booked");
 
-                    if ((!selectedSlots.length || (selectedSlots.length === 1 && selectedSlots[0] === timeSlot)) && !isBooked) {
-                        // If no slot is selected yet or the clicked slot is already selected and not booked
-                        div.classList.add("selected");
-                        selectedSlots = [timeSlot];
-                    } else if (selectedSlots.length === 1) {
-                        // If only one slot is selected
-                        if (selectedSlots[0] === timeSlot) {
-                            // If the same slot is clicked again
-                            div.classList.remove("selected");
-                            selectedSlots = [];
-                        } else {
-                            // If a different slot is clicked
-                            var selectedSlotIndex = timeSlots.indexOf(selectedSlots[0]);
-                            if (currentIndex < selectedSlotIndex) {
-                                selectedSlots = timeSlots.slice(currentIndex, selectedSlotIndex + 1);
-                            } else {
-                                selectedSlots = timeSlots.slice(selectedSlotIndex, currentIndex + 1);
-                            }
-                            updateSlotsColor(startSlotIndex, endSlotIndex, false);
-                            div.classList.add("selected");
-                            updateSlotsColor(currentIndex, currentIndex, true);
-                        }
-                    } else {
-                        // If multiple slots are selected
-                        updateSlotsColor(startSlotIndex, endSlotIndex, false);
-                        div.classList.add("selected");
-                        selectedSlots = [timeSlot];
-                    }
+    if ((!selectedSlots.length || (selectedSlots.length === 1 && selectedSlots[0] === timeSlot)) && !isBooked) {
+        // If no slot is selected yet or the clicked slot is already selected and not booked
+        div.classList.add("selected");
+        selectedSlots = [timeSlot];
+    } else if (selectedSlots.length === 1) {
+        // If only one slot is selected
+        if (selectedSlots[0] === timeSlot) {
+            // If the same slot is clicked again
+            div.classList.remove("selected");
+            selectedSlots = [];
+        } else {
+            // If a different slot is clicked
+            var selectedSlotIndex = timeSlots.indexOf(selectedSlots[0]);
+            if (currentIndex < selectedSlotIndex) {
+                selectedSlots = timeSlots.slice(currentIndex, selectedSlotIndex + 1);
+            } else {
+                selectedSlots = timeSlots.slice(selectedSlotIndex, currentIndex + 1);
+            }
+            updateSlotsColor(startSlotIndex, endSlotIndex, false);
+            div.classList.add("selected");
+            updateSlotsColor(currentIndex, currentIndex, true);
+        }
+    } else {
+        // If multiple slots are selected
+        updateSlotsColor(startSlotIndex, endSlotIndex, false);
+        div.classList.add("selected");
 
-                    displaySelectedSlots();
-                });
+        // Find the indexes of the first and last selected slots
+        var firstIndex = timeSlots.indexOf(selectedSlots[0]);
+        var lastIndex = timeSlots.indexOf(selectedSlots[selectedSlots.length - 1]);
+
+        // Include all slots between the first and last selected slots
+        selectedSlots = timeSlots.slice(Math.min(firstIndex, currentIndex), Math.max(lastIndex, currentIndex) + 1);
+
+        // Update the startSlotIndex and endSlotIndex
+        startSlotIndex = timeSlots.indexOf(selectedSlots[0]);
+        endSlotIndex = timeSlots.indexOf(selectedSlots[selectedSlots.length - 1]);
+
+        // Update the color of selected slots
+        updateSlotsColor(startSlotIndex, endSlotIndex, true);
+    }
+
+    displaySelectedSlots();
+});
+
+
 
                 container.appendChild(div);
             });
@@ -450,9 +465,11 @@ var selectedSlots = [];
             if (selectedSlots.length >= 2) {
                 document.getElementById("startSlot").value = selectedSlots[0];
                 document.getElementById("endSlot").value = selectedSlots[selectedSlots.length - 1];
-                document.getElementById("selected_Range").innerHTML = selectedSlots[0] + " " +selectedSlots[selectedSlots.length - 1];
+                document.getElementById("selected_Range").innerHTML = selectedSlots[0] + " to " +selectedSlots[selectedSlots.length - 1];
                 
-                calculateTotalTime(selectedSlots[0], selectedSlots[selectedSlots.length - 1])
+                var endtiming = selectedSlots[selectedSlots.length - 1].split('-');
+                
+                calculateTotalTime(selectedSlots[0], endtiming[1])
             } else {
                 document.getElementById("startSlot").value = "";
                 document.getElementById("endSlot").value = "";
