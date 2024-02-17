@@ -3,7 +3,10 @@
     <a class="navbar-brand" href="#">
         <img class="logo" src="{{ url_for('static', filename='img/aklogo.png') }}" alt="Logo">
     </a>
-
+    <!-- <form class="d-flex">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form> -->
     <div id="userOptions" style="float: right; ">
         <ul class="navbar-nav me-0 flex-row justify-content-end me-4">
             
@@ -13,6 +16,7 @@
                     <button class="btn text-light dropdown-toggle" type="button" id="userDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {% if name %} {{ name }} {% else %} Login {% endif %}
                     </button>
+                    {% if name %} 
                     <div class="dropdown-menu" aria-labelledby="userDropdown">
                         <a class="dropdown-item" href="/dashboard.html">Login</a>
                         <a class="dropdown-item" href="/">Home</a>
@@ -21,6 +25,13 @@
                         <a class="dropdown-item" href="/login_dashboard.html" onclick="logout()">Logout</a>
                         
                     </div>
+                    {% else %}  
+                    
+                    <div class="dropdown-menu" aria-labelledby="userDropdown">
+                        <a class="dropdown-item" href="/dashboard.html">Login</a>
+                    </div>
+                    
+                    {% endif %}
                 </div>
             </li>
         </ul>

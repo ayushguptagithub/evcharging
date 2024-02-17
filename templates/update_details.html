@@ -97,7 +97,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
                 <div class="form-group">
                     <label>Connector Types</label>
-                    {% for connector_type in ['Type 1', 'Type 2', 'Type 3'] %}
+                    {% for connector_type in ['J1771', 'CCS', 'CHAdeMO','NACS']%}
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="connector_type" value="{{ connector_type }}" {% if connector_type in user_data[5] %}checked{% endif %} disabled>
                             <label class="form-check-label">{{ connector_type }}</label>
@@ -107,7 +107,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         
                 <div class="form-group">
                     <label>Charge Levels</label>
-                    {% for charge_level in ['Level 1', 'Level 2', 'Level 3'] %}
+                    {% for charge_level in ['Level 1', 'Level 2', 'DC Fast '] %}
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="charge_level" value="{{ charge_level }}" {% if charge_level in user_data[6] %}checked{% endif %} disabled>
                             <label class="form-check-label">{{ charge_level }}</label>
@@ -199,7 +199,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
                 <div class="form-group">
                     <label>Connector Types</label>
-                    {% for connector_type in ['Type 1', 'Type 2', 'Type 3'] %}
+                    {% for connector_type in  ['J1771', 'CCS', 'CHAdeMO','NACS'] %}
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="connector_type" value="{{ connector_type }}" {% if connector_type in user_data[5] %}checked{% endif %} >
                             <label class="form-check-label">{{ connector_type }}</label>
@@ -209,7 +209,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         
                 <div class="form-group">
                     <label>Charge Levels</label>
-                    {% for charge_level in ['Level 1', 'Level 2', 'Level 3'] %}
+                    {% for charge_level in ['Level 1', 'Level 2', 'DC Fast'] %}
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="charge_level" value="{{ charge_level }}" {% if charge_level in user_data[6] %}checked{% endif %} >
                             <label class="form-check-label">{{ charge_level }}</label>

@@ -17,10 +17,15 @@ app.config['MAIL_USERNAME'] = 'checkin12390@gmail.com'
 app.config['MAIL_PASSWORD'] = 'dtvtxofktnxijekn'
 app.config['MAIL_DEFAULT_SENDER'] = 'checkin12390@example.com'
 # Configure MySQL
-app.config['MYSQL_HOST'] = 'bz6lj0wtuursoqtkhwfx-mysql.services.clever-cloud.com'
-app.config['MYSQL_USER'] = 'ujxcnt7zsraho8ba'
-app.config['MYSQL_PASSWORD'] = 'hPBWgC9viBAiM2UCVkJb'
-app.config['MYSQL_DB'] = 'bz6lj0wtuursoqtkhwfx'
+# app.config['MYSQL_HOST'] = 'bz6lj0wtuursoqtkhwfx-mysql.services.clever-cloud.com'
+# app.config['MYSQL_USER'] = 'ujxcnt7zsraho8ba'
+# app.config['MYSQL_PASSWORD'] = 'hPBWgC9viBAiM2UCVkJb'
+# app.config['MYSQL_DB'] = 'bz6lj0wtuursoqtkhwfx'
+
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'root'
+app.config['MYSQL_DB'] = 'bankdb'
 
 # Initialize Flask-Mail
 mail = Mail(app)
@@ -415,7 +420,7 @@ def dashboard():
             mysql.connection.commit()
             cur.close()
 
-            return redirect(url_for('update_details'))
+            return redirect(url_for('update_profile'))
 
 
         return render_template('dashboard.html', usertype=usertype, email=email, name=name,details=details)
@@ -716,6 +721,63 @@ def my_bookings():
         return redirect(url_for('login'))
 
 
+@app.route('/complaints/<int:company_id>',methods=['GET', 'POST'])
+def complaints(company_id):
+    
+    usertype = None
+    name=None
+    email=None
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT `desc`, `u_email`, `u_name`, `date` FROM `camplaints` WHERE c_id = %s", (company_id,))
+    complaints_datas = cur.fetchall()
+    
+
+    if 'usertype' in session and session['usertype'] == 'user' and 'email' in session and 'name' in session:
+
+        usertype = session['usertype']
+        email = session['email']
+        name = session['name']
+
+        if request.method == 'POST':
+            # Handle form submission and update the database
+            desc = request.form['desc']
+            date = d.today()
+
+            cur = mysql.connection.cursor()
+            cur.execute("INSERT INTO camplaints (`c_id`, `desc`, `u_email`, `u_name`, `date`) VALUES ( %s, %s, %s, %s, %s)", 
+                        (company_id,desc,email,name,date))
+            mysql.connection.commit()
+            cur.close()
+            flash("Complain registered successfully", "success")
+            
+            return redirect(url_for('complaints', company_id=company_id))
+            
+    else:
+          
+        return  render_template('complaints.html',complaints_datas=complaints_datas,messages='Guess...!!You are not logged in Yet',usertype= usertype,email=email,name=name)
+
+    
+    return render_template('complaints.html',complaints_datas=complaints_datas,usertype=usertype,email=email,name=name)
+
+@app.route('/complaints_sadmin.html')
+def complaints_admin():
+    usertype = None
+    name = None
+    email = None
+
+    if 'usertype' in session and session['usertype'] == 'station_owner' and 'email' in session and 'name' in session:
+        usertype = session['usertype']
+        email = session['email']
+        name = session['name']
+
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT `desc`, `u_email`, `u_name`, `date` FROM `camplaints` WHERE c_id = (SELECT DISTINCT id FROM users WHERE email = %s)", (email,))
+        complaints_datas = cur.fetchall()
+
+        return render_template('complaints_sadmin.html', complaints_datas=complaints_datas, usertype=usertype, email=email, name=name)
+
+    return render_template('login.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

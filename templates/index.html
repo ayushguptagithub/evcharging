@@ -67,7 +67,7 @@
                                     <p><strong>Email:</strong> {{ company.email }}</p>
                                     <p><strong>Phone:</strong> {{ company.phone }}</p>
                                     <p><strong>GST:</strong> {{ company.gst }}</p>
-                                    <p><strong>Total Space:</strong> {{ company.tspace }}</p>
+                                    <p><strong>Total Ports:</strong> {{ company.tspace }}</p>
                                 </div>
                                 <div class="col-md-6">
                                     <img class="car" src="{{ url_for('static', filename='img/car.jpg') }}" alt="car" height="200px" width="250px">
@@ -93,7 +93,8 @@
                                     
                                 </tbody>
                             </table>
-                            <a href="{{ url_for('company_details', company_id=company.id) }}" class="btn btn-success float-right text-white">View More</a>
+                            <a href="{{ url_for('company_details', company_id=company.id) }}" class="btn btn-success float-right text-white m-2">View More</a>
+                            <a href="{{ url_for('complaints', company_id=company.id) }}" class="btn btn-danger float-right text-white m-2">Any Complaints ?</a>
                         </div>
                     </div>
                 </div>
