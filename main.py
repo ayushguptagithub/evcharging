@@ -270,12 +270,18 @@ def book_slot(company_id):
             bookingdate = d.today()
             formatted_time = datetime.now().time()
             bookingtime = formatted_time.strftime('%H:%M')
-            st = starttime.split(" - ")
-            
+            time = starttime.split(" - ")
+            time1 = time[0].split(":")
+            st1 = int(time1[0]) - 1
+            st = str(st1) + ":" + time1[1]
+
+            print(st)
+
+
 
             cur = mysql.connection.cursor()
             cur.execute("INSERT INTO `bookings`( `username`, `useremail`, `userphone`, `useraddress`, `userarea`, `stationname`, `stationemail`, `stationphone`, `stationaddress`, `stationarea`, `selectedport`, `selectedtype`, `selectedlevel`, `starttime`, `endtime`, `totaltime`, `totalcost`, `bookingtime`, `bookingdate`,`st`,`status`) VALUES (%s,%s ,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s,%s, %s, %s,%s)", 
-                        (name, email, userphone, useraddress, userarea, stationname, stationemail, stationphone, stationaddress, stationarea ,selectedport , selectedtype , selectedlevel ,starttime ,endtime ,totaltime ,totalcost ,bookingtime ,bookingdate,st[0],'Booked'))
+                        (name, email, userphone, useraddress, userarea, stationname, stationemail, stationphone, stationaddress, stationarea ,selectedport , selectedtype , selectedlevel ,starttime ,endtime ,totaltime ,totalcost ,bookingtime ,bookingdate,st,'Booked'))
             mysql.connection.commit()
             cur.close()
 
@@ -732,8 +738,7 @@ def my_bookings():
         name = session['name']
         date = d.today().strftime('%Y-%m-%d')
         current_time = datetime.now()
-        one_hour_less_time = current_time - timedelta(hours=1)
-        bookingtime = one_hour_less_time.strftime('%H:%M')
+        bookingtime = current_time.strftime('%H:%M')
         
         cur = mysql.connection.cursor()
         cur.execute("SELECT `stationname`, `stationemail`, `stationphone`, `stationaddress`, `stationarea`,  `selectedport`, `selectedtype`, `selectedlevel`, `starttime`, `endtime`, `totaltime`, `totalcost`, `bookingtime`, `bookingdate` ,`st`,`id` FROM bookings WHERE useremail=%s and status=%s", (email,'Booked',))
