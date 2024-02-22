@@ -199,7 +199,7 @@ def book_port(company_id):
         selectedport = request.form.get('selectedport')
         
         cur = mysql.connection.cursor()
-        cur.execute("SELECT `starttime`, `endtime` FROM `bookings` WHERE bookingdate = %s and selectedport =%s", (bookingdate,selectedport,))
+        cur.execute("SELECT `starttime`, `endtime` FROM `bookings` WHERE bookingdate = %s and selectedport =%s and status=%s", (bookingdate,selectedport,'Booked',))
         booked_data = cur.fetchall()
         
         
@@ -270,10 +270,12 @@ def book_slot(company_id):
             bookingdate = d.today()
             formatted_time = datetime.now().time()
             bookingtime = formatted_time.strftime('%H:%M')
+            st = starttime.split(" - ")
+            
 
             cur = mysql.connection.cursor()
-            cur.execute("INSERT INTO `bookings`( `username`, `useremail`, `userphone`, `useraddress`, `userarea`, `stationname`, `stationemail`, `stationphone`, `stationaddress`, `stationarea`, `selectedport`, `selectedtype`, `selectedlevel`, `starttime`, `endtime`, `totaltime`, `totalcost`, `bookingtime`, `bookingdate`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s,%s, %s, %s,%s)", 
-                        (name, email, userphone, useraddress, userarea, stationname, stationemail, stationphone, stationaddress, stationarea ,selectedport , selectedtype , selectedlevel ,starttime ,endtime ,totaltime ,totalcost ,bookingtime ,bookingdate))
+            cur.execute("INSERT INTO `bookings`( `username`, `useremail`, `userphone`, `useraddress`, `userarea`, `stationname`, `stationemail`, `stationphone`, `stationaddress`, `stationarea`, `selectedport`, `selectedtype`, `selectedlevel`, `starttime`, `endtime`, `totaltime`, `totalcost`, `bookingtime`, `bookingdate`,`st`,`status`) VALUES (%s,%s ,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s,%s, %s, %s,%s)", 
+                        (name, email, userphone, useraddress, userarea, stationname, stationemail, stationphone, stationaddress, stationarea ,selectedport , selectedtype , selectedlevel ,starttime ,endtime ,totaltime ,totalcost ,bookingtime ,bookingdate,st[0],'Booked'))
             mysql.connection.commit()
             cur.close()
 
@@ -311,8 +313,9 @@ def book_slot(company_id):
                 selectedport = request.form.get('selectedport')
                 
                 cur = mysql.connection.cursor()
-                cur.execute("SELECT `starttime`, `endtime` FROM `bookings` WHERE bookingdate = %s and selectedport =%s", (bookingdate,selectedport,))
+                cur.execute("SELECT `starttime`, `endtime` FROM `bookings` WHERE bookingdate = %s and selectedport =%s and status=%s", (bookingdate,selectedport,'Booked',))
                 booked_data = cur.fetchall()
+                
                 return render_template('book_slot.html',selectedport=selectedport,selectedtype = selectedtype,selectedlevel=selectedlevel,company_id=company_id,usertype=usertype, name=name, email=email,connector_type_options=connector_type_options, charge_level_options=charge_level_options, time_slots=time_slots,getConnectorTypePrice=getConnectorTypePrice,booked_data=json.dumps(booked_data))
 
 
@@ -439,12 +442,31 @@ def bookings_admin():
         name = session['name']
 
         cur = mysql.connection.cursor()
-        cur.execute("SELECT `username`, `useremail`, `userphone`, `useraddress`, `userarea`,  `selectedport`, `selectedtype`, `selectedlevel`, `starttime`, `endtime`, `totaltime`, `totalcost`, `bookingtime`, `bookingdate` FROM bookings WHERE stationemail=%s", (email,))
+        cur.execute("SELECT `username`, `useremail`, `userphone`, `useraddress`, `userarea`,  `selectedport`, `selectedtype`, `selectedlevel`, `starttime`, `endtime`, `totaltime`, `totalcost`, `bookingtime`, `bookingdate` FROM bookings WHERE stationemail=%s and status=%s", (email,'Booked',))
         booking_data = cur.fetchall()
         cur.close()
-        print(booking_data)
+        
 
         return render_template('bookings_admin.html', booking_data=booking_data,usertype=usertype,email=email,name=name)
+    else:
+        # Redirect the user to the login page if not logged in
+        return redirect(url_for('login'))
+    
+
+@app.route('/cancelled_bookingsadmin.html', methods=['GET', 'POST'])
+def cancelled_bookingsadmin():
+    if 'usertype' in session and 'email' in session and 'name' in session:
+        usertype = session['usertype']
+        email = session['email']
+        name = session['name']
+
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT `username`, `useremail`, `userphone`, `useraddress`, `userarea`,  `selectedport`, `selectedtype`, `selectedlevel`, `starttime`, `endtime`, `totaltime`, `totalcost`, `bookingtime`, `bookingdate` FROM bookings WHERE stationemail=%s and status=%s", (email,'Cancelled',))
+        booking_data = cur.fetchall()
+        cur.close()
+        
+
+        return render_template('cancelled_bookingsadmin.html', booking_data=booking_data,usertype=usertype,email=email,name=name)
     else:
         # Redirect the user to the login page if not logged in
         return redirect(url_for('login'))
@@ -708,17 +730,62 @@ def my_bookings():
         usertype = session['usertype']
         email = session['email']
         name = session['name']
-
+        date = d.today().strftime('%Y-%m-%d')
+        current_time = datetime.now()
+        one_hour_less_time = current_time - timedelta(hours=1)
+        bookingtime = one_hour_less_time.strftime('%H:%M')
+        
         cur = mysql.connection.cursor()
-        cur.execute("SELECT `stationname`, `stationemail`, `stationphone`, `stationaddress`, `stationarea`,  `selectedport`, `selectedtype`, `selectedlevel`, `starttime`, `endtime`, `totaltime`, `totalcost`, `bookingtime`, `bookingdate` FROM bookings WHERE useremail=%s", (email,))
+        cur.execute("SELECT `stationname`, `stationemail`, `stationphone`, `stationaddress`, `stationarea`,  `selectedport`, `selectedtype`, `selectedlevel`, `starttime`, `endtime`, `totaltime`, `totalcost`, `bookingtime`, `bookingdate` ,`st`,`id` FROM bookings WHERE useremail=%s and status=%s", (email,'Booked',))
         booking_data = cur.fetchall()
         cur.close()
-        print(booking_data)
 
-        return render_template('my_bookings.html', booking_data=booking_data,usertype=usertype,email=email,name=name)
+        return render_template('my_bookings.html', booking_data=booking_data,usertype=usertype,email=email,name=name,bookingtime=bookingtime,date=date)
     else:
         # Redirect the user to the login page if not logged in
         return redirect(url_for('login'))
+
+@app.route('/cancelled_bookings.html', methods=['GET', 'POST'])
+def cancelled_bookings():
+    if 'usertype' in session and 'email' in session and 'name' in session:
+        usertype = session['usertype']
+        email = session['email']
+        name = session['name']
+        date = d.today().strftime('%Y-%m-%d')
+        current_time = datetime.now()
+        one_hour_less_time = current_time - timedelta(hours=1)
+        bookingtime = one_hour_less_time.strftime('%H:%M')
+        
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT `stationname`, `stationemail`, `stationphone`, `stationaddress`, `stationarea`,  `selectedport`, `selectedtype`, `selectedlevel`, `starttime`, `endtime`, `totaltime`, `totalcost`, `bookingtime`, `bookingdate` ,`st`,`id` FROM bookings WHERE useremail=%s and status=%s", (email,'Cancelled',))
+        booking_data = cur.fetchall()
+        cur.close()
+
+        return render_template('cancelled_bookings.html', booking_data=booking_data,usertype=usertype,email=email,name=name,bookingtime=bookingtime,date=date)
+    else:
+        # Redirect the user to the login page if not logged in
+        return redirect(url_for('login'))
+
+
+@app.route('/cancel_booking', methods=['POST'])
+def cancel_booking():
+    if 'usertype' in session and 'email' in session and 'name' in session:
+        if request.method == 'POST':
+            booking_id = request.form['booking_id']
+            # Implement cancellation logic here
+            # For example, you can update the booking status in the database
+            cur = mysql.connection.cursor()
+            cur.execute("UPDATE bookings SET status = 'Cancelled' WHERE id = %s", (booking_id,))
+            mysql.connection.commit()
+            cur.close()
+            flash('Booking cancelled successfully', 'success')
+            return redirect(url_for('my_bookings'))
+        else:
+            abort(405)  # Method Not Allowed
+    else:
+        # Redirect the user to the login page if not logged in
+        return redirect(url_for('login'))
+
 
 
 @app.route('/complaints/<int:company_id>',methods=['GET', 'POST'])

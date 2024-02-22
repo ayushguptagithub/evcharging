@@ -32,7 +32,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 </head>
 <style>
-    .dashboard-content{margin-left: 7%;background-color: antiquewhite;padding: 10%; overflow-x: auto;}
+    .dashboard-content{background-color: antiquewhite;padding: 10%; overflow-x: auto;}
     @media screen and (max-width:600px) {
         .dashboard-content{
             margin-top: 20%;
@@ -56,11 +56,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
 <div class="row dashboard-content container-fluid">
 
-    <div class="col-4">
+    <div class="col-6">
         {% include 'sidebar_sadmin.html' %}
         
     </div>
-    <div class="col-6" >
+    <div class="col-6 " >
         <div class="col">
             <h2>Your Profile Details</h2>
             <form id="profile_details" action="{{ url_for('update_profile') }}">

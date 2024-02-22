@@ -25,43 +25,7 @@ body{
     width: 100%;
     height: 50%;
 }
-/* .login-page{
-    background-color: rgb(3, 3, 36);
-  }
-  .login-logo{
-    text-align: center;
-    font-size: x-large;
-    margin: 2%;
-  }
-  .login-box{
-    margin-top: 3%;
-  }
-  .login-box-body{
-    border: 2px solid #d2d6de;
-    text-align: center;
-    color: rgb(0, 0, 0);
-    background-color: aliceblue;
-    width: 50%;
-    margin-left: auto;
-    margin-right: auto;
-    height: auto;
-    padding: 5%;
-   
-  }
-  .button{
-    margin-left: auto;
-    margin-right: auto;
-  }
-  input[type='email'] {
-    margin-left: auto;
-    margin-right: auto;
-  width: 80%;
-  } */
 
-/* for admin from panel page only*/
-.main-header{
-    height: 100px;
-}
 
 html {
     background-color1: #f0f3f4;
@@ -77,15 +41,19 @@ body {
     
 }
 .main-header{
-    background-color: #15033e;
+    background-color: #0a021f;
     width: 100%;
     position: fixed;
     top: 0;
     
 }
 .dashboard-content{
-    position: relative;
-    right: 0;
+    position: relative !important;
+    left: 20%;
+    right: 0px !important;
+    width: 80% !important;
+    background-color: white !important;
+    margin-top: 5%;
 }
 .navbar{
     background-color: #0a021f;
@@ -110,7 +78,7 @@ body {
     top: 51px;
     bottom: 0;
     left: 0;
-    width: 14%;
+    width: 20%;
     z-index: 1000;
     display: block;
     padding: 20px;
@@ -118,8 +86,15 @@ body {
     overflow-y: auto;
     margin-top:-1px;
     border-right: 1px solid #eee;
-    background-color: #3a3f51;
+    background-color: #0a021f;
     color: #a6a8b1;
+    font-size: larger;
+}
+
+.main_section{
+    position: relative;
+    right: 0px ;
+    width:80%;
 }
 .nav-sidebar {
   margin-right: -21px; 

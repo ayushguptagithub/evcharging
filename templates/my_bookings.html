@@ -38,7 +38,7 @@
 
     <div class="container-fluid " style="background-color: antiquewhite;padding: 2%; ">
         <h2>Your Booking Details</h2>
-        <table class="table table-dark table-striped">
+        <table class="table table-dark table-striped table-responsive">
             <thead>
                 <th>Sr no.</th>
                 <th>Name</th>
@@ -54,6 +54,7 @@
                 <th>Total Cost</th>
                 <th>Booking Time</th>
                 <th>Booking Date</th>
+                <th>Cancel Booking</th>
                 <th>Download</th>
             </thead>
             <tbody>
@@ -71,9 +72,25 @@
                     <td>{{ booking[9] }}</td>
                     <td>{{ booking[10] }}</td>
                     <td>{{ booking[11] }}</td>
-                    <td>{{ booking[13] }}</td>
                     <td>{{ booking[12] }}</td>
-                    <td><button type="button" class="btn btn-primary" onclick="downloadInvoice('{{ booking[0] }}', '{{ booking[1] }}', '{{ booking[2] }}', '{{ booking[3] }}', '{{ booking[4] }}', '{{ booking[5] }}', '{{ booking[6] }}', '{{ booking[7] }}', '{{ booking[8] }}', '{{ booking[9] }}', '{{ booking[10] }}', '{{ booking[11] }}', '{{ booking[12] }}', '{{ booking[13] }}')">Download Invoice</button></td>
+                    <td>{{ booking[13] }}</td>
+                    
+                    <td>
+                        <form action="{{ url_for('cancel_booking') }}" method="post">
+                            <input type="hidden" name="booking_id" value="{{ booking[15] }}">
+                            
+                            {% if booking[14] > bookingtime and booking[13] == date %}
+                                <button type="submit" class="btn btn-primary btn-sm">Cancel Booking</button>
+                            {% else %}
+                                <button type="button" class="btn btn-primary btn-sm" disabled>Cancel Booking</button>
+                            {% endif %}
+                        </form>
+                        
+                    </td>
+
+
+                                
+                    <td><button type="button" class="btn btn-primary btn-sm" onclick="downloadInvoice('{{ booking[0] }}', '{{ booking[1] }}', '{{ booking[2] }}', '{{ booking[3] }}', '{{ booking[4] }}', '{{ booking[5] }}', '{{ booking[6] }}', '{{ booking[7] }}', '{{ booking[8] }}', '{{ booking[9] }}', '{{ booking[10] }}', '{{ booking[11] }}', '{{ booking[12] }}', '{{ booking[13] }}')">Download Invoice</button></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -158,10 +175,7 @@
         }
     </script>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.1/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+   
 
     {% include 'footer.html' %}
 </body>

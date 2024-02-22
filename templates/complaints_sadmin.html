@@ -37,7 +37,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
       border-radius: 5px;
       overflow: hidden;
       background-color: #ddd;
-      width: 95%;
+      width: 80%;
     }
     .chat-container .chat-header {
       background-color: #2b2b2b;
@@ -64,13 +64,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
     margin-left: 0% !important;
       padding: 1% !important;
     }
+  }
   </style>
 </head>
 
 <body class="">
-<!-- <div class="wrapper"> -->
 
-  <!-- Main Header -->
+
+  
   
   {% include 'header_sadmin.html' %}
   
@@ -81,15 +82,15 @@ scratch. This page gets rid of all links and provides the needed markup only.
         {% include 'sidebar_sadmin.html' %}
         
     </div>
-    <div class="col-6" style="margin-left:10%;background-color: antiquewhite;padding: 10%;">
+    <div class="col-6">
         <div class="col mt-5">
             <div class="container mb-3 ">
                 <div class="chat-container">
                   <div class="chat-header">
-                    <h4 class="mb-0">All Complaints</h4>
+                    <h4 class="mb-0">All Feedbacks</h4>
                   </div>
                   <div class="chat-body">
-                    <!-- Sample complaint message, dynamically generated using backend data -->
+                   
                     {% for complaint in complaints_datas %}
                         <div class="message">
                             <p class="mb-1"><strong>{{complaint[2]}}: </strong>{{complaint[0]}}</p>
