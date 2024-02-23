@@ -17,15 +17,15 @@ app.config['MAIL_USERNAME'] = 'checkin12390@gmail.com'
 app.config['MAIL_PASSWORD'] = 'dtvtxofktnxijekn'
 app.config['MAIL_DEFAULT_SENDER'] = 'checkin12390@example.com'
 # Configure MySQL
-app.config['MYSQL_HOST'] = 'bz6lj0wtuursoqtkhwfx-mysql.services.clever-cloud.com'
-app.config['MYSQL_USER'] = 'ujxcnt7zsraho8ba'
-app.config['MYSQL_PASSWORD'] = 'hPBWgC9viBAiM2UCVkJb'
-app.config['MYSQL_DB'] = 'bz6lj0wtuursoqtkhwfx'
+# app.config['MYSQL_HOST'] = 'bz6lj0wtuursoqtkhwfx-mysql.services.clever-cloud.com'
+# app.config['MYSQL_USER'] = 'ujxcnt7zsraho8ba'
+# app.config['MYSQL_PASSWORD'] = 'hPBWgC9viBAiM2UCVkJb'
+# app.config['MYSQL_DB'] = 'bz6lj0wtuursoqtkhwfx'
 
-# app.config['MYSQL_HOST'] = 'localhost'
-# app.config['MYSQL_USER'] = 'root'
-# app.config['MYSQL_PASSWORD'] = 'root'
-# app.config['MYSQL_DB'] = 'bankdb'
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'root'
+app.config['MYSQL_DB'] = 'bankdb'
 
 # Initialize Flask-Mail
 mail = Mail(app)
@@ -92,13 +92,13 @@ def index():
     cur.execute("SELECT distinct area FROM users")
     areas_data = cur.fetchall()
     areas = [Area(area=row[0]) for row in areas_data]
-
+    
     selected_area = None
     registered_companies = []
 
     # Fetch companies if area is selected
     if request.method == 'POST':
-        selected_area = request.form.get('selected_option')
+        selected_area = request.form.get('selected_option')# name of text box of location
         
 
 
