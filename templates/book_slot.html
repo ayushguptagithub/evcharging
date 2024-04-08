@@ -179,7 +179,7 @@
   </div>
   <!-- <button onclick="popup();">Click me to open the popup</button> -->
 
-    <h2 class="text-center">Select the Slot :</h2>
+    <h2 class="text-center">Select the Slot(Minimum 30min) :</h2>
     <div id="timeSlotsContainer" class="container"></div>
     <div id="selectedSlots" style="display: none;"></div>
 
@@ -207,7 +207,7 @@
                     <td><form action="{{url_for('book_slot',company_id=company_id)}}" method="post" id="bookings">
                         <input type="text" name="selectedport" value="{{ selectedport }}" hidden>
                         <input type="text" name="selectedtype" value="{{ selectedtype }}" hidden>
-                        <input type="text" name="selectedlevel" value="{{ selectedlevel }}" hidden>
+                        <input type="text" name="selectedlevel" value="{{ selectedlevel }}" id="level" hidden>
                         <input type="text" name="startSlot" id="startSlot" hidden><br>
                         <input type="text" name="endSlot" id="endSlot" hidden>
                         <input type="text" name="totalCost" id="totalCost" hidden>
@@ -240,7 +240,7 @@
  
 
         var booked_data = {{ booked_data |safe}};
-
+        
         var alltime = [
     "00:00 - 00:15",
     "00:15 - 00:30",
@@ -509,8 +509,18 @@ var selectedSlots = [];
                 
                 var total_min = (hours*60)+minutes;
 
-                
-                totalcost = total_min * 1;
+                // Assuming electricity rate is $0.12 per kWh and charging rate is 10 kW
+                var electricityRate = 0.12; // rupees per kWh
+                var chargingRate = 20; // kW
+
+                if (document.getElementById('level').value == 'DC fast') {
+                    totalcost = (total_min * 3) + (total_min / 60 * chargingRate * electricityRate);
+                } else if (document.getElementById('level').value == 'Level 1') {
+                    totalcost = (total_min * 1) + (total_min / 60 * chargingRate * electricityRate);
+                } else {
+                    totalcost = (total_min * 2) + (total_min / 60 * chargingRate * electricityRate);
+                }
+
                 
 
 

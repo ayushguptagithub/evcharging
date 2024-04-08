@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 from datetime import date as d
 from datetime import datetime
 import json
-from flask import session
 
 app = Flask(__name__, static_url_path='/static')
 app.secret_key="Ayush@2041"
@@ -248,9 +247,7 @@ def book_slot(company_id):
             cur = mysql.connection.cursor()
             cur.execute("SELECT id, name, email, phone,vehicle, area, taluka, state FROM users WHERE email = %s", (email,))
             user_details = cur.fetchone()
-            
-            username = user_details[1]
-            useremail = user_details[2]
+
             userphone = user_details[3]
             useraddress = user_details[4]
             userarea =  user_details[5]
@@ -273,202 +270,82 @@ def book_slot(company_id):
             time1 = time[0].split(":")
             st1 = int(time1[0]) - 1
             st = str(st1) + ":" + time1[1]
-            
-            total_cost_numeric = float(totalcost.split(' ')[0])
-            
-            amount = total_cost_numeric   
 
-                        
-            # Storing data in session
-            session['username'] = user_details[1]
-            session['useremail'] = user_details[2]
-            session['userphone'] = user_details[3]
-            session['useraddress'] = user_details[4]
-            session['userarea'] = user_details[5]
-            session['stationname'] = registered_companies[0].name
-            session['stationemail'] = registered_companies[0].email
-            session['stationphone'] = registered_companies[0].phone
-            session['stationaddress'] = registered_companies[0].address
-            session['stationarea'] = registered_companies[0].area
-            session['selectedport'] = request.form.get('selectedport')
-            session['selectedtype'] = request.form.get('selectedtype')
-            session['selectedlevel'] = request.form.get('selectedlevel')
-            session['starttime'] = request.form.get('startSlot')
-            session['endtime'] = request.form.get('endSlot')
-            session['totaltime'] = request.form.get('totalHours')
-            session['totalcost'] = request.form.get('totalCost')
-            session['bookingdate'] = datetime.today().strftime('%Y-%m-%d')
-            formatted_time = datetime.now().time()
-            session['bookingtime'] = formatted_time.strftime('%H:%M')
-            time = session['starttime'].split(" - ")
-            time1 = time[0].split(":")
-            st1 = int(time1[0]) - 1
-            session['st'] = str(st1) + ":" + time1[1]
 
+            totalc=totalcost.split(' ')
+            
+            import razorpay
+
+            # Set your Razorpay API key and secret
+            razorpay_key_id = 'rzp_test_QrXwl6OhdHsI5b'
+            razorpay_key_secret = '4uX0ZE6APBpcaUOZGQcD8hYt'
+
+            client = razorpay.Client(auth=(razorpay_key_id, razorpay_key_secret))
+            amount = totalc[0]
+            order_currency = 'INR'  # You can change it to your preferred currency
+            order_receipt = 'order_receipt'
+            order_notes = {'Shipping address': 'Bommanahalli, Bangalore'}
+
+            # Create order
+            order = client.order.create({
+                'amount': amount,
+                'currency': order_currency,
+                'receipt': order_receipt,
+                'notes': order_notes
+            })
             
 
-
-
-            return  render_template('payment.html',useremail=useremail,username=username,userphone = userphone,useraddress=useraddress,userarea=userarea,stationname=stationname,stationemail=stationemail,stationphone=stationphone,stationaddress=stationaddress,stationarea=stationarea,selectedport=selectedport,selectedtype=selectedtype,selectedlevel=selectedlevel,starttime=starttime,endtime=endtime,totaltime=totaltime,totalcost=totalcost,bookingdate=bookingdate,bookingtime=bookingtime,st=st,amount=amount,company_id=company_id)
+           
             
+            cur = mysql.connection.cursor()
+            cur.execute("INSERT INTO `bookings`( `username`, `useremail`, `userphone`, `useraddress`, `userarea`, `stationname`, `stationemail`, `stationphone`, `stationaddress`, `stationarea`, `selectedport`, `selectedtype`, `selectedlevel`, `starttime`, `endtime`, `totaltime`, `totalcost`, `bookingtime`, `bookingdate`,`st`,`status`) VALUES (%s,%s ,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s,%s, %s, %s,%s)", 
+                        (name, email, userphone, useraddress, userarea, stationname, stationemail, stationphone, stationaddress, stationarea ,selectedport , selectedtype , selectedlevel ,starttime ,endtime ,totaltime ,totalcost ,bookingtime ,bookingdate,st,'Booked'))
+            mysql.connection.commit()
+            cur.close()
 
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT `username`, `useremail`, `userphone`, `useraddress`, `userarea`, `stationname`, `stationemail`, `stationphone`, `stationaddress`, `stationarea`, `selectedport`, `selectedtype`, `selectedlevel`, `starttime`, `endtime`, `totaltime`, `totalcost`, `bookingtime`, `bookingdate` FROM `bookings` WHERE bookingdate = %s and bookingtime= %s and useremail =%s and stationemail = %s ",(bookingdate,bookingtime,email,stationemail,))
+            bill_details=cur.fetchone()
+            mysql.connection.commit()
+            cur.close()
 
-            # cur = mysql.connection.cursor()
-            # cur.execute("INSERT INTO `bookings`( `username`, `useremail`, `userphone`, `useraddress`, `userarea`, `stationname`, `stationemail`, `stationphone`, `stationaddress`, `stationarea`, `selectedport`, `selectedtype`, `selectedlevel`, `starttime`, `endtime`, `totaltime`, `totalcost`, `bookingtime`, `bookingdate`,`st`,`status`) VALUES (%s,%s ,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s,%s, %s, %s,%s)", 
-            #             (name, email, userphone, useraddress, userarea, stationname, stationemail, stationphone, stationaddress, stationarea ,selectedport , selectedtype , selectedlevel ,starttime ,endtime ,totaltime ,totalcost ,bookingtime ,bookingdate,st,'Booked'))
-            # mysql.connection.commit()
-            # cur.close()
-
-            # cur = mysql.connection.cursor()
-            # cur.execute("SELECT `username`, `useremail`, `userphone`, `useraddress`, `userarea`, `stationname`, `stationemail`, `stationphone`, `stationaddress`, `stationarea`, `selectedport`, `selectedtype`, `selectedlevel`, `starttime`, `endtime`, `totaltime`, `totalcost`, `bookingtime`, `bookingdate` FROM `bookings` WHERE bookingdate = %s and bookingtime= %s and useremail =%s and stationemail = %s ",(bookingdate,bookingtime,email,stationemail,))
-            # bill_details=cur.fetchone()
-            # mysql.connection.commit()
-            # cur.close()
-
-            # if totalcost :
+            if totalcost :
                 
-            #     return  render_template('bill.html',company_id=company_id, registered_companies=registered_companies,bill_details=bill_details,usertype=usertype, name=name, email=email)
-            # else:
-            #     flash("Please fill out all fields", 'danger')
-            #     cur = mysql.connection.cursor()
-            #     cur.execute("SELECT id, name, email, phone, gst, tspace, connector_types, charge_levels, dc_support, address, area, taluka, state FROM users WHERE id = %s", (company_id,))
-            #     companies_datas = cur.fetchall()
-            #     registered_companies = [Company_details(id=row[0], name=row[1], email=row[2], phone=row[3], gst=row[4], tspace=row[5], connector_types=row[6], charge_levels=row[7], dc_support=row[8], address=row[9], area=row[10], taluka=row[11], state=row[12]) for row in companies_datas]
+                return  render_template('bill.html',company_id=company_id, registered_companies=registered_companies,bill_details=bill_details,usertype=usertype, name=name, email=email)
+            else:
+                flash("Please fill out all fields", 'danger')
+                cur = mysql.connection.cursor()
+                cur.execute("SELECT id, name, email, phone, gst, tspace, connector_types, charge_levels, dc_support, address, area, taluka, state FROM users WHERE id = %s", (company_id,))
+                companies_datas = cur.fetchall()
+                registered_companies = [Company_details(id=row[0], name=row[1], email=row[2], phone=row[3], gst=row[4], tspace=row[5], connector_types=row[6], charge_levels=row[7], dc_support=row[8], address=row[9], area=row[10], taluka=row[11], state=row[12]) for row in companies_datas]
 
                 
 
-            #     # Fetch connector type options from the database
-            #     cur.execute("SELECT DISTINCT connector_types FROM users WHERE id = %s", (company_id,))
-            #     connector_type_options = [row[0] for row in cur.fetchall()]
+                # Fetch connector type options from the database
+                cur.execute("SELECT DISTINCT connector_types FROM users WHERE id = %s", (company_id,))
+                connector_type_options = [row[0] for row in cur.fetchall()]
 
-            #     # Fetch charge level options from the database
-            #     cur.execute("SELECT DISTINCT charge_levels FROM users WHERE id = %s", (company_id,))
-            #     charge_level_options = [row[0] for row in cur.fetchall()]
+                # Fetch charge level options from the database
+                cur.execute("SELECT DISTINCT charge_levels FROM users WHERE id = %s", (company_id,))
+                charge_level_options = [row[0] for row in cur.fetchall()]
 
-            #     time_slots = generate_time_slots()
+                time_slots = generate_time_slots()
 
-            #     bookingdate = d.today()
-            #     formatted_time = datetime.now().time()
-            #     bookingtime = formatted_time.strftime('%H:%M')
-            #     selectedport = request.form.get('selectedport')
+                bookingdate = d.today()
+                formatted_time = datetime.now().time()
+                bookingtime = formatted_time.strftime('%H:%M')
+                selectedport = request.form.get('selectedport')
                 
-            #     cur = mysql.connection.cursor()
-            #     cur.execute("SELECT `starttime`, `endtime` FROM `bookings` WHERE bookingdate = %s and selectedport =%s and status=%s", (bookingdate,selectedport,'Booked',))
-            #     booked_data = cur.fetchall()
+                cur = mysql.connection.cursor()
+                cur.execute("SELECT `starttime`, `endtime` FROM `bookings` WHERE bookingdate = %s and selectedport =%s and status=%s", (bookingdate,selectedport,'Booked',))
+                booked_data = cur.fetchall()
                 
-            #     return render_template('book_slot.html',selectedport=selectedport,selectedtype = selectedtype,selectedlevel=selectedlevel,company_id=company_id,usertype=usertype, name=name, email=email,connector_type_options=connector_type_options, charge_level_options=charge_level_options, time_slots=time_slots,getConnectorTypePrice=getConnectorTypePrice,booked_data=json.dumps(booked_data))
+                return render_template('book_slot.html',selectedport=selectedport,selectedtype = selectedtype,selectedlevel=selectedlevel,company_id=company_id,usertype=usertype, name=name, email=email,connector_type_options=connector_type_options, charge_level_options=charge_level_options, time_slots=time_slots,getConnectorTypePrice=getConnectorTypePrice,booked_data=json.dumps(booked_data))
 
 
         return render_template('book_slot.html', company_id=company_id, registered_companies=registered_companies, usertype=usertype, name=name, email=email)
 
     return render_template('book_port.html', company_id=company_id)
-
-import razorpay
-
-# Set your Razorpay API key and secret
-razorpay_key_id = 'rzp_test_QrXwl6OhdHsI5b'
-razorpay_key_secret = '4uX0ZE6APBpcaUOZGQcD8hYt'
-
-client = razorpay.Client(auth=(razorpay_key_id, razorpay_key_secret))
-
-@app.route('/payment.html', methods=['GET', 'POST'])
-def payment():
-    if request.method == 'POST':
-                # Inside your route where you're processing the form data
-        
-
-        print("Session Variables:")
-        for key, value in session.items():
-            print(f"{key}: {value}")
-
-
-        
-
-        # Handle POST request for payment processing
-        amount = int(request.form['amount']) * 10  # Razorpay expects amount in paise
-        order_currency = 'INR'  # You can change it to your preferred currency
-        order_receipt = 'order_receipt'
-        order_notes = {'Shipping address': 'Bommanahalli, Bangalore'}
-
-        # Create order
-        order = client.order.create({
-            'amount': amount,
-            'currency': order_currency,
-            'receipt': order_receipt,
-            'notes': order_notes
-        })
-        return redirect(url_for('success'))
-        # return redirect(url_for('success',username=username,useremail=useremail,userphone = userphone,useraddress=useraddress,userarea=userarea,stationname=stationname,stationemail=stationemail,stationphone=stationphone,stationaddress=stationaddress,stationarea=stationarea,selectedport=selectedport,selectedtype=selectedtype,selectedlevel=selectedlevel,starttime=starttime,endtime=endtime,totaltime=totaltime,totalcost=totalcost,bookingdate=bookingdate,bookingtime=bookingtime,st=st,amount=amount,company_id=company_id))
-    else:
-        # Render payment.html template for GET request
-        return render_template('payment.html')
-  
-@app.route('/success')
-def success():
-    if request.method == 'GET':
-       
-
-
-
-        print("Session Variables:")
-        for key, value in session.items():
-            print(f"{key}: {value}")
-
-    return redirect(url_for('successful'))
-
-
-@app.route('/successful')
-def successful():    
-    if 'usertype' in session and session['usertype'] == 'user' and 'email' in session and 'name' in session:
-        usertype = session['usertype']
-        email = session['email']
-        name = session['name']
-
-        username = session['username']
-        useremail = session['useremail']
-        userphone = session['userphone']
-        useraddress = session['useraddress']
-        userarea = session['userarea']
-        stationname = session['stationname']
-        stationemail = session['stationemail']
-        stationphone = session['stationphone']
-        stationaddress = session['stationaddress']
-        stationarea = session['stationarea']
-        selectedport = session['selectedport']
-        selectedtype = session['selectedtype']
-        selectedlevel = session['selectedlevel']
-        starttime = session['starttime']
-        endtime = session['endtime']
-        totaltime = session['totaltime']
-        totalcost = session['totalcost']
-        bookingdate = session['bookingdate']
-        bookingtime = session['bookingtime']
-        st = session['st']
-        company_id = session['company_id']
-
-
-        
-
-
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO `bookings`( `username`, `useremail`, `userphone`, `useraddress`, `userarea`, `stationname`, `stationemail`, `stationphone`, `stationaddress`, `stationarea`, `selectedport`, `selectedtype`, `selectedlevel`, `starttime`, `endtime`, `totaltime`, `totalcost`, `bookingtime`, `bookingdate`,`st`,`status`) VALUES (%s,%s ,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s,%s, %s, %s,%s)", 
-                    (username, useremail, userphone, useraddress, userarea, stationname, stationemail, stationphone, stationaddress, stationarea ,selectedport , selectedtype , selectedlevel ,starttime ,endtime ,totaltime ,totalcost ,bookingtime ,bookingdate,st,'Booked'))
-        mysql.connection.commit()
-        cur.close()
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT `username`, `useremail`, `userphone`, `useraddress`, `userarea`, `stationname`, `stationemail`, `stationphone`, `stationaddress`, `stationarea`, `selectedport`, `selectedtype`, `selectedlevel`, `starttime`, `endtime`, `totaltime`, `totalcost`, `bookingtime`, `bookingdate` FROM `bookings` WHERE bookingdate = %s and bookingtime= %s and useremail =%s and stationemail = %s ",(bookingdate,bookingtime,email,stationemail,))
-        bill_details=cur.fetchone()
-        mysql.connection.commit()
-        cur.close()
-
-
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT id, name, email, phone, gst, tspace, connector_types, charge_levels, dc_support, address, area, taluka, state FROM users WHERE id = %s", (company_id,))
-        companies_datas = cur.fetchall()
-        registered_companies = [Company_details(id=row[0], name=row[1], email=row[2], phone=row[3], gst=row[4], tspace=row[5], connector_types=row[6], charge_levels=row[7], dc_support=row[8], address=row[9], area=row[10], taluka=row[11], state=row[12]) for row in companies_datas]
-
-
-    return  render_template('bill.html',company_id=company_id, registered_companies=registered_companies,bill_details=bill_details,usertype=usertype, name=name, email=email)
 
 @app.route('/bill/<int:company_id>', methods=['GET', 'POST'])
 def bill(company_id):
@@ -996,3 +873,131 @@ def complaints_admin():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Razorpay Payment</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+    <h1>Checkout</h1>
+    <form id="payment-form" action="{{ url_for('payment') }}" method="post">
+        <label for="amount">Amount (in INR):</label>
+        <input type="text" name="amount" id="amount" value="{{ amount }}" readonly>
+        <input type="text" name="username" value="{{ username }}" hidden>
+        <input type="text" name="useremail" value="{{ useremail }}" hidden>
+        <input type="text" name="userphone" value="{{ userphone }}" hidden>
+        <input type="text" name="useraddress" value="{{ useraddress }}" hidden>
+        <input type="text" name="userarea" value="{{ userarea }}" hidden>
+        <input type="text" name="stationname" value="{{ stationname }}" hidden>
+        <input type="text" name="stationemail" value="{{ stationemail }}" hidden>
+        <input type="text" name="stationphone" value="{{ stationphone }}" hidden>
+        <input type="text" name="stationaddress" value="{{ stationaddress }}" hidden>
+        <input type="text" name="stationarea" value="{{ stationarea }}" hidden>
+        <input type="text" name="selectedport" value="{{ selectedport }}" hidden>
+        <input type="text" name="selectedtype" value="{{ selectedtype }}" hidden>
+        <input type="text" name="selectedlevel" value="{{ selectedlevel }}" hidden>
+        <input type="text" name="starttime" value="{{ starttime }}" hidden>
+        <input type="text" name="endtime" value="{{ endtime }}" hidden>
+        <input type="text" name="totaltime" value="{{ totaltime }}" hidden>
+        <input type="text" name="totalcost" value="{{ totalcost }}" hidden>
+        <input type="text" name="bookingdate" value="{{ bookingdate }}" hidden>
+        <input type="text" name="bookingtime" value="{{ bookingtime }}" hidden>
+        <input type="text" name="st" value="{{ st }}" hidden>
+        <input type="text" name="company_id" value="{{ company_id }}" hidden>
+        
+        <button type="submit" id="pay">Pay with Razorpay</button>
+    </form>
+
+    <script>
+        var amountField = document.getElementById('amount');
+        var payButton = document.getElementById('pay');
+        var razorpayKey = "rzp_test_QrXwl6OhdHsI5b"; // Replace this with your actual Razorpay API key
+        // Select all hidden input elements
+        // Retrieve values from input fields
+        var amount = document.getElementById('amount').value;
+        var username = document.getElementById('username').value;
+        var useremail = document.getElementById('useremail').value;
+        var userphone = document.getElementById('userphone').value;
+        var useraddress = document.getElementById('useraddress').value;
+        var userarea = document.getElementById('userarea').value;
+        var stationname = document.getElementById('stationname').value;
+        var stationemail = document.getElementById('stationemail').value;
+        var stationphone = document.getElementById('stationphone').value;
+        var stationaddress = document.getElementById('stationaddress').value;
+        var stationarea = document.getElementById('stationarea').value;
+        var selectedport = document.getElementById('selectedport').value;
+        var selectedtype = document.getElementById('selectedtype').value;
+        var selectedlevel = document.getElementById('selectedlevel').value;
+        var starttime = document.getElementById('starttime').value;
+        var endtime = document.getElementById('endtime').value;
+        var totaltime = document.getElementById('totaltime').value;
+        var totalcost = document.getElementById('totalcost').value;
+        var bookingdate = document.getElementById('bookingdate').value;
+        var bookingtime = document.getElementById('bookingtime').value;
+        var st = document.getElementById('st').value;
+        var company_id = document.getElementById('company_id').value;
+
+
+
+
+
+        payButton.addEventListener('click', function(event) {
+            event.preventDefault();
+
+            var options = {
+                "key": razorpayKey,
+                "amount": amountField.value * 100,  // Amount is in paise
+                "currency": "INR",
+                "name": "Akcodes",
+                "description": "Test Transaction",
+                "handler": function(response) {
+    window.location.href = '/success?' +
+        'amount=' + amount +
+        '&username=' + username +
+        '&useremail=' + useremail +
+        '&userphone=' + userphone +
+        '&useraddress=' + useraddress +
+        '&userarea=' + userarea +
+        '&stationname=' + stationname +
+        '&stationemail=' + stationemail +
+        '&stationphone=' + stationphone +
+        '&stationaddress=' + stationaddress +
+        '&stationarea=' + stationarea +
+        '&selectedport=' + selectedport +
+        '&selectedtype=' + selectedtype +
+        '&selectedlevel=' + selectedlevel +
+        '&starttime=' + starttime +
+        '&endtime=' + endtime +
+        '&totaltime=' + totaltime +
+        '&totalcost=' + totalcost +
+        '&bookingdate=' + bookingdate +
+        '&bookingtime=' + bookingtime +
+        '&st=' + st +
+        '&company_id=' + company_id;
+},
+
+
+                "prefill": {
+                    "name": "Ayush Gupta",
+                    "email": "gayush2041@gmail.com"
+                },
+                "notes": {
+                    "address": "Razorpay Corporate Office"
+                },
+                "theme": {
+                    "color": "#F37254"
+                }
+            };
+
+            console.log(options); // Log options to check if they are correct
+
+            var rzp = new Razorpay(options);
+            rzp.open();
+        }); 
+    </script>
+</body>
+</html>
